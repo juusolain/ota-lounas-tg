@@ -58,9 +58,6 @@ def get_lunch_today():
     month = date_now.month
     obj = lunchdata[f'{day}.{month}']
     if not obj:
-        obj = list(lunchdata.items())[date_now.weekday()][1]
-        print("Used fallback lunch")
-    if not obj:
         return None, None
 
     return obj['foods'], obj['humandate']
