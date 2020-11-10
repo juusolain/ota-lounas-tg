@@ -13,9 +13,9 @@ modef = open('mode', 'r')
 mode = modef.read().strip()
 modef.close()
 if mode == 'dev':
-    chat_id = -1001468852318
+    chat_id = '@ota_lounas_dev'
 elif mode == 'prod':
-    chat_id = -1001219068606
+    chat_id = '@otalounas'
 
 tf = open('token', 'r')
 token = tf.read().strip()
