@@ -110,5 +110,5 @@ else:
 date_now = datetime.date.today()
 if date_now.isoweekday() < 6:
     # prod: -1001219068606, dev: -1001468852318
-    updater.bot.send_message(chat_id=-1001468852318, text=message, parse_mode='MarkdownV2')
+    updater.bot.send_message(chat_id=-1001219068606, text=message, parse_mode='MarkdownV2')
 updater.stop()
