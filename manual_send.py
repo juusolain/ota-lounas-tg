@@ -16,7 +16,7 @@ modef.close()
 if mode == 'dev':
     chat_id = -1001468852318
 elif mode == 'prod':
-    chat_id = -100121906860
+    chat_id = -1001219068606
 
 def bot_start():
     updater = Updater(token)
