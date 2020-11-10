@@ -9,7 +9,7 @@ from collections import OrderedDict
 lunchdata = None
 
 tf = open('token', 'r')
-token = tf.read()
+token = tf.read().strip()
 tf.close()
 
 def get_page():
@@ -50,8 +50,6 @@ def fetch_lunch():
     date_now = datetime.date.today()
     year, week_num, day_of_week = date_now.isocalendar()
     lunchdata = get_lunch_foods(week_num)
-    if lunchdata:
-        save_lunch()
     
 def get_lunch_today():
     global lunchdata
