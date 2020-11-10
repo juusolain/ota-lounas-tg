@@ -8,6 +8,15 @@ from telegram.ext import Updater
 from collections import OrderedDict
 lunchdata = None
 
+#dev -1001468852318, prod: -1001219068606
+modef = open('mode', 'r')
+mode = modef.read().strip()
+modef.close()
+if mode == 'dev':
+    chat_id = -1001468852318
+elif mode == 'prod':
+    chat_id = -100121906860
+
 tf = open('token', 'r')
 token = tf.read().strip()
 tf.close()
@@ -103,7 +112,6 @@ else:
     message = format_message(foods, humandate)
     date_now = datetime.date.today()
     if date_now.isoweekday() < 6:
-        # prod: -1001219068606, dev: -1001468852318
-        updater.bot.send_message(chat_id=-1001468852318, text=message, parse_mode='MarkdownV2')
+        updater.bot.send_message(chat_id=chat_id, text=message, parse_mode='MarkdownV2')
 
 updater.stop()
