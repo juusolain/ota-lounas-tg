@@ -1,12 +1,10 @@
-import urllib.request
+import requests
 from bs4 import BeautifulSoup
 import re
 import json
 import datetime
 from telegram import Update
 from telegram.ext import Updater
-from collections import OrderedDict
-lunchdata = None
 
 #dev -1001468852318, prod: -1001219068606
 modef = open('mode', 'r')
@@ -17,20 +15,18 @@ if mode == 'dev':
 elif mode == 'prod':
     chat_id = '@otalounas'
 
+log_chat_id = '@ota_lounas_dev'
+
 tf = open('token', 'r')
 token = tf.read().strip()
 tf.close()
 
 def get_page():
-    req = urllib.request.urlopen("https://ravintolapalvelut.iss.fi/espoon-tietokyla")
-    req_bytes = req.read()
-
-    html = req_bytes.decode("utf8")
-    req.close()
-    return html
+    r = requests.get('https://ravintolapalvelut.iss.fi/espoon-tietokyla')
+    return r.text
 
 def get_lunch_foods(week):
-    ret = OrderedDict()
+    ret =  {}
     html = get_page()
     soup = BeautifulSoup(html, 'html.parser')
     h2 = soup.find('h2', string=f'Lukiolaisten lounaslista vko {week}')
@@ -52,20 +48,17 @@ def get_lunch_foods(week):
                 ret[compdate]['foods'].append(foodstr)
     return ret
     
-def fetch_lunch():
-    global lunchdata
-    date_now = datetime.date.today()
-    year, week_num, day_of_week = date_now.isocalendar()
-    lunchdata = get_lunch_foods(week_num)
-    
 def get_lunch_today():
-    global lunchdata
     date_now = datetime.date.today()
     day = date_now.day
     month = date_now.month
+    week = date_now.isocalendar()[1]
+
+    lunchdata = get_lunch_foods(week)
+    
     obj = lunchdata[f'{day}.{month}.']
     if not obj:
-        return None, None
+        raise Exception("No lunchdata")
 
     return obj['foods'], obj['humandate']
 
@@ -84,10 +77,14 @@ def format_message(foods, humandate):
     return ret
 
 updater = bot_start()
-fetch_lunch()
-foods, humandate = get_lunch_today()
-if foods == None or humandate == None:
-    print("Couldn't send message")
+
+
+try:
+    foods, humandate = get_lunch_today()
+except Exception as error:
+    date_now = datetime.date.today()
+    if date_now.isoweekday() < 6:
+        updater.bot.send_message(chat_id=log_chat_id, text="Couldn't send message: "+str(error))
 else:
     message = format_message(foods, humandate)
     date_now = datetime.date.today()
