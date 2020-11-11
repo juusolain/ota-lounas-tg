@@ -38,12 +38,16 @@ humandate = input("Input human date: ")
 foodcount = int(input("Amount of foods today: "))
 for i in range(foodcount):
     foods.append(input("Input food: "))
-if foods == None or humandate == None:
-    print("Couldn't send message")
-else:
-    message = format_message(foods, humandate)
-    date_now = datetime.date.today()
-    if date_now.isoweekday() < 6:
-        updater.bot.send_message(chat_id=chat_id, text=message, parse_mode='MarkdownV2')
+
+send = input("Send this (y/n): ")
+
+if send == "y" or send == "yes":
+    if foods == None or humandate == None:
+        print("Couldn't send message")
+    else:
+        message = format_message(foods, humandate)
+        date_now = datetime.date.today()
+        if date_now.isoweekday() < 6:
+            updater.bot.send_message(chat_id=chat_id, text=message, parse_mode='MarkdownV2')
 
 updater.stop()

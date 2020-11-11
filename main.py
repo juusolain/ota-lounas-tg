@@ -42,9 +42,7 @@ def get_lunch_foods(week):
         date = div.find('h2', class_='article__heading--h2')
         datestring = date.string
         datestring = datestring.strip()
-        if (datestring[-1] == "."):
-            datestring = datestring[:-1]
-        compdate = re.search('[0-9]{1,2}\.[0-9]{1,2}', datestring)[0]
+        compdate = re.search('[0-9]{1,2}\.[0-9]{1,2}\.', datestring)[0]
         ret[compdate] = {'humandate': datestring, 'foods': []}
         foods  = div.find_all('p')
         for food in foods:
@@ -65,29 +63,11 @@ def get_lunch_today():
     date_now = datetime.date.today()
     day = date_now.day
     month = date_now.month
-    obj = lunchdata[f'{day}.{month}']
+    obj = lunchdata[f'{day}.{month}.']
     if not obj:
         return None, None
 
     return obj['foods'], obj['humandate']
-
-def save_lunch():
-    global lunchdata
-    jsondata = json.dumps(lunchdata, indent=2)
-    with open('lunchdata.json', 'w') as f:
-        f.write(jsondata)
-        f.close()
-
-
-def load_lunch():
-    global lunchdata
-    with open('lunchdata.json', 'r') as f:
-        jsondata = f.read()
-        lunchdata = json.loads(jsondata)
-        f.close()
-
-def help_command(update, context):
-    update.message.reply_text('Help!')
 
 def bot_start():
     updater = Updater(token)
