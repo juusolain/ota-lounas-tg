@@ -5,6 +5,7 @@ import json
 import datetime
 from telegram import Update
 from telegram.ext import Updater
+import re
 
 #dev -1001468852318, prod: -1001219068606
 modef = open('mode', 'r')
@@ -29,13 +30,13 @@ def get_lunch_foods(week):
     ret =  {}
     html = get_page()
     soup = BeautifulSoup(html, 'html.parser')
-    h2 = soup.find('h2', string=f'Lukiolaisten lounaslista vko {week}')
+    h2 = soup.find('h2', string=re.compile(f'Lukiolaisten lounaslista .* {week}'))
     art = h2.next_sibling
     while (art.name == None):
         art = art.next_sibling
     divs = art.find_all('div', class_='lunch-menu__day')
     for div in divs:
-        date = div.find('h2', class_='article__heading--h2')
+        date = div.find('h2')
         datestring = date.string
         datestring = datestring.strip()
         compdate = re.search('[0-9]{1,2}\.[0-9]{1,2}\.', datestring)[0]
