@@ -47,8 +47,9 @@ def get_lunch_foods(week):
             foodstr = foodstr.replace(u'\xa0', u' ')
             if(foodstr != ''):
                 ret[compdate]['foods'].append(foodstr)
+    print(ret)
     return ret
-    
+
 def get_lunch_today():
     date_now = datetime.date.today()
     day = date_now.day
