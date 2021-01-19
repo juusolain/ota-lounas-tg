@@ -17,6 +17,11 @@ if mode == 'dev':
     chat_id = '@ota_lounas_dev'
 elif mode == 'prod':
     chat_id = '@otalounas'
+else:
+    print("Invalid mode - assuming dev")
+    chat_id = '@ota_lounas_dev'
+
+log_chat_id = '@ota_lounas_dev'
 
 def bot_start():
     updater = Updater(token)
