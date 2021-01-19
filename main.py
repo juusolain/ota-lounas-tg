@@ -15,6 +15,16 @@ if mode == 'dev':
     chat_id = '@ota_lounas_dev'
 elif mode == 'prod':
     chat_id = '@otalounas'
+else:
+    print("Invalid mode - assuming dev")
+    chat_id = '@ota_lounas_dev'
+
+url_list = [
+    'https://ravintolapalvelut.iss.fi/espoon-tietokyla/otaniemen-lukio-vko-',
+    'https://ravintolapalvelut.iss.fi/espoon-tietokyla/otaniemen-lukio-vko',
+    'https://ravintolapalvelut.iss.fi/espoon-tietokyla/lukiolaisten-lounaslista-vko-',
+    'https://ravintolapalvelut.iss.fi/espoon-tietokyla/lukiolaisten-lounaslista-vko',
+]
 
 log_chat_id = '@ota_lounas_dev'
 
@@ -22,31 +32,32 @@ tf = open('token', 'r')
 token = tf.read().strip()
 tf.close()
 
-def get_page():
-    r = requests.get('https://ravintolapalvelut.iss.fi/espoon-tietokyla')
+weekday_names = ['Maanantai', 'Tiistai', 'Keskiviikko', 'Torstai', 'Perjantai', 'Lauantai', 'Sunnuntai']
+
+def get_page(week, i = 0):
+    base_url = url_list[i]
+    r = requests.get(f'{base_url}{week}')
+    if r.status_code == 404:
+        i += 1
+        if i >= len(url_list):
+            raise Exception("Didn't find list from any of the URLs")
+        return get_page(week, i)
     return r.text
 
 def get_lunch_foods(week):
-    ret =  {}
-    html = get_page()
+    ret = {}
+    html = get_page(week)
     soup = BeautifulSoup(html, 'html.parser')
-    h2 = soup.find('h2', string=re.compile(f'Lukiolaisten lounaslista .* {week}'))
-    art = h2.next_sibling
-    while (art.name == None):
-        art = art.next_sibling
-    divs = art.find_all('div', class_='lunch-menu__day')
-    for div in divs:
-        date = div.find('h2')
-        datestring = date.string
-        datestring = datestring.strip()
-        compdate = re.search('[0-9]{1,2}\.[0-9]{1,2}\.', datestring)[0]
-        ret[compdate] = {'humandate': datestring, 'foods': []}
-        foods  = div.find_all('p')
-        for food in foods:
-            foodstr = food.string.strip()
-            foodstr = foodstr.replace(u'\xa0', u' ')
-            if(foodstr != ''):
-                ret[compdate]['foods'].append(foodstr)
+    content = soup.find('div', class_='article__body')
+    headers = content.findAll('h2', class_='article__heading--h2')
+    for h in headers:
+        foods = []
+        weekday = h.text
+        for sib in h.find_next_siblings():
+            if not sib.name == 'p':
+                break
+            foods.append(sib.text)
+        ret[weekday] = foods
     return ret
     
 def get_lunch_today():
@@ -54,14 +65,21 @@ def get_lunch_today():
     day = date_now.day
     month = date_now.month
     week = date_now.isocalendar()[1]
+    weekday = date_now.weekday()
+    weekday_name = weekday_names[weekday]
 
-    lunchdata = get_lunch_foods(week)
+    weekfoods = get_lunch_foods(week)
     
-    obj = lunchdata[f'{day}.{month}.']
-    if not obj:
-        raise Exception("No lunchdata")
+    foods_candidates = [value for key, value in weekfoods.items() if re.search(weekday_name, key, re.IGNORECASE)]
 
-    return obj['foods'], obj['humandate']
+    if not len(foods_candidates) == 1:
+        raise Exception(f"Invalid foods_candidates: {foods_candidates}")
+
+    foods = foods_candidates[0]
+
+    humandate = f"{weekday_name} {day}.{month}"
+
+    return foods, humandate
 
 def bot_start():
     updater = Updater(token)
@@ -85,6 +103,7 @@ try:
 except Exception as error:
     date_now = datetime.date.today()
     if date_now.isoweekday() < 6:
+        print(error)
         updater.bot.send_message(chat_id=log_chat_id, text="Couldn't send message: "+str(error))
 else:
     message = format_message(foods, humandate)
