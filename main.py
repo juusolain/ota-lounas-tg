@@ -22,6 +22,8 @@ tf = open('token', 'r')
 token = tf.read().strip()
 tf.close()
 
+weekday_names = ['Maanantai', 'Tiistai', 'Keskiviikko', 'Torstai', 'Perjantai', 'Lauantai', 'Sunnuntai']
+
 def get_page():
     r = requests.get('https://ravintolapalvelut.iss.fi/espoon-tietokyla')
     return r.text
@@ -37,16 +39,15 @@ def get_lunch_foods(week):
     divs = art.find_all('div', class_='lunch-menu__day')
     for div in divs:
         date = div.find('h2')
-        datestring = date.string
-        datestring = datestring.strip()
-        compdate = re.search('[0-9]{1,2}\.[0-9]{1,2}\.', datestring)[0]
-        ret[compdate] = {'humandate': datestring, 'foods': []}
+        weekday = date.string
+        weekday = weekday.strip()
+        ret[weekday] = []
         foods  = div.find_all('p')
         for food in foods:
             foodstr = food.string.strip()
             foodstr = foodstr.replace(u'\xa0', u' ')
             if(foodstr != ''):
-                ret[compdate]['foods'].append(foodstr)
+                ret[weekday].append(foodstr)
     return ret
     
 def get_lunch_today():
@@ -54,22 +55,29 @@ def get_lunch_today():
     day = date_now.day
     month = date_now.month
     week = date_now.isocalendar()[1]
+    weekday = date_now.weekday()
+    weekday_name = weekday_names[weekday]
 
-    lunchdata = get_lunch_foods(week)
+    weekfoods = get_lunch_foods(week)
     
-    obj = lunchdata[f'{day}.{month}.']
-    if not obj:
-        raise Exception("No lunchdata")
+    foods_candidates = [value for key, value in weekfoods.items() if re.search(weekday_name, key, re.IGNORECASE)]
 
-    return obj['foods'], obj['humandate']
+    if not len(foods_candidates) == 1:
+        raise Exception(f"Invalid foods_candidates: {foods_candidates}")
+
+    foods = foods_candidates[0]
+
+    humandate = f"{weekday_name} {day}.{month}"
+
+    return foods, humandate
 
 def bot_start():
     updater = Updater(token)
     return updater
 
-def format_message(foods, humandate):
+def format_message(foods, weekday):
     ret = "*"
-    ret += humandate.replace('.', '\.')
+    ret += weekday.replace('.', '\.')
     ret += "*\n"
     for food in foods:
         ret += "\- "
