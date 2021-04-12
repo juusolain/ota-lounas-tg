@@ -20,10 +20,10 @@ else:
     chat_id = '@ota_lounas_dev'
 
 url_list = [
-    'https://ravintolapalvelut.iss.fi/espoon-tietokyla/otaniemen-lukio-vko-',
     'https://ravintolapalvelut.iss.fi/espoon-tietokyla/otaniemen-lukio-vko',
     'https://ravintolapalvelut.iss.fi/espoon-tietokyla/lukiolaisten-lounaslista-vko-',
     'https://ravintolapalvelut.iss.fi/espoon-tietokyla/lukiolaisten-lounaslista-vko',
+    'https://ravintolapalvelut.iss.fi/espoon-tietokyla/lukion-lounas-vko-',
 ]
 
 log_chat_id = '@ota_lounas_dev'
