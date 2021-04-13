@@ -32,7 +32,7 @@ def get_lunch_foods(week):
     ret =  {}
     html = get_page()
     soup = BeautifulSoup(html, 'html.parser')
-    h2 = soup.find('h2', string=re.compile(f'Lukiolaisten lounaslista .* {week}'))
+    h2 = soup.find('h2', string=re.compile(f'Lukio.* lounaslista .* {week}'))
     art = h2.next_sibling
     while (art.name == None):
         art = art.next_sibling
