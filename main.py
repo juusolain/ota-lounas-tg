@@ -7,7 +7,7 @@ from telegram import Update
 from telegram.ext import Updater
 import re
 
-#dev -1001468852318, prod: -1001219068606
+# dev -1001468852318, prod: -1001219068606
 modef = open('mode', 'r')
 mode = modef.read().strip()
 modef.close()
@@ -22,17 +22,22 @@ tf = open('token', 'r')
 token = tf.read().strip()
 tf.close()
 
-weekday_names = ['Maanantai', 'Tiistai', 'Keskiviikko', 'Torstai', 'Perjantai', 'Lauantai', 'Sunnuntai']
+weekday_names = ['Maanantai', 'Tiistai', 'Keskiviikko',
+                 'Torstai', 'Perjantai', 'Lauantai', 'Sunnuntai']
+
 
 def get_page():
     r = requests.get('https://ravintolapalvelut.iss.fi/espoon-tietokyla')
     return r.text
 
+
 def get_lunch_foods(week):
-    ret =  {}
+    ret = {}
     html = get_page()
     soup = BeautifulSoup(html, 'html.parser')
-    h2 = soup.find('h2', string=re.compile(f'Lukio.* lounaslista .* {week}'))
+    h2 = soup.find('h2', string=re.compile(f'Lukio.* lounas.* .* {week}'))
+    if not h2:
+
     art = h2.next_sibling
     while (art.name == None):
         art = art.next_sibling
@@ -42,14 +47,17 @@ def get_lunch_foods(week):
         weekday = date.string
         weekday = weekday.strip()
         ret[weekday] = []
-        foods  = div.find_all('p')
+        foods = div.find_all('p')
         for food in foods:
             foodstr = food.string.strip()
             foodstr = foodstr.replace(u'\xa0', u' ')
             if(foodstr != ''):
                 ret[weekday].append(foodstr)
     return ret
+
+def get_lunch_stupid_method(week):
     
+
 def get_lunch_today():
     date_now = datetime.date.today()
     day = date_now.day
@@ -59,8 +67,9 @@ def get_lunch_today():
     weekday_name = weekday_names[weekday]
 
     weekfoods = get_lunch_foods(week)
-    
-    foods_candidates = [value for key, value in weekfoods.items() if re.search(weekday_name, key, re.IGNORECASE)]
+
+    foods_candidates = [value for key, value in weekfoods.items(
+    ) if re.search(weekday_name, key, re.IGNORECASE)]
 
     if not len(foods_candidates) == 1:
         raise Exception(f"Invalid foods_candidates: {foods_candidates}")
@@ -71,9 +80,11 @@ def get_lunch_today():
 
     return foods, humandate
 
+
 def bot_start():
     updater = Updater(token)
     return updater
+
 
 def format_message(foods, weekday):
     ret = "*"
@@ -85,6 +96,7 @@ def format_message(foods, weekday):
         ret += "\n"
     return ret
 
+
 updater = bot_start()
 
 
@@ -93,11 +105,13 @@ try:
 except Exception as error:
     date_now = datetime.date.today()
     if date_now.isoweekday() < 6:
-        updater.bot.send_message(chat_id=log_chat_id, text="Couldn't send message: "+str(error))
+        updater.bot.send_message(
+            chat_id=log_chat_id, text="Couldn't send message: "+str(error))
 else:
     message = format_message(foods, humandate)
     date_now = datetime.date.today()
     if date_now.isoweekday() < 6:
-        updater.bot.send_message(chat_id=chat_id, text=message, parse_mode='MarkdownV2')
+        updater.bot.send_message(
+            chat_id=chat_id, text=message, parse_mode='MarkdownV2')
 
 updater.stop()
