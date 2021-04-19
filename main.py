@@ -22,25 +22,61 @@ tf = open('token', 'r')
 token = tf.read().strip()
 tf.close()
 
+url_list = [
+    'https://ravintolapalvelut.iss.fi/espoon-tietokyla/otaniemen-lukio-vko-',
+    'https://ravintolapalvelut.iss.fi/espoon-tietokyla/lukiolaisten-lounaslista-vko-',
+    'https://ravintolapalvelut.iss.fi/espoon-tietokyla/lukion-lounas-vko-',
+]
+
 weekday_names = ['Maanantai', 'Tiistai', 'Keskiviikko',
                  'Torstai', 'Perjantai', 'Lauantai', 'Sunnuntai']
 
 
-def get_page():
+def get_frontpage():
     r = requests.get('https://ravintolapalvelut.iss.fi/espoon-tietokyla')
     return r.text
 
 
 def get_lunch_foods(week):
-    ret = {}
-    html = get_page()
-    soup = BeautifulSoup(html, 'html.parser')
-    h2 = soup.find('h2', string=re.compile(f'Lukio.* lounas.* .* {week}'))
-    if not h2:
+    print("Getting lunch foods")
+    r = get_lunch_foods_frontpage(week)
+    if r == None:
+        print("Trying url")
+        r = get_lunch_foods_url(week, week)
+    if r == None:
+        print("Trying bruteforce")
+        r = get_lunch_foods_url_bruteforce(week)
+    if r == None:
+        raise Exception("Didn't find lunch foods")
+    print("Found lunch foods: ")
+    print(r)
+    return r
 
+
+def get_url_page(week, i=0):
+    base_url = url_list[i]
+    r = requests.get(f'{base_url}{week}')
+    if r.status_code == 404:
+        i += 1
+        if i >= len(url_list):
+            return None
+        return get_url_page(week, i)
+    return r.text
+
+
+def get_lunch_foods_frontpage(week):
+    ret = {}
+    html = get_frontpage()
+    soup = BeautifulSoup(html, 'html.parser')
+    h2 = soup.find('h2', string=re.compile(
+        f'(Lukio.* ?|Otaniemen ?|lounas.* ?|lounaslista.* ?|[Ll]ukio.* ?){{1,2}}[\s\S]*(vko|viikko)[\s\S]*{week}[\s\S]*'))
+    if not h2:
+        return None
     art = h2.next_sibling
     while (art.name == None):
         art = art.next_sibling
+    if not art:
+        return None
     divs = art.find_all('div', class_='lunch-menu__day')
     for div in divs:
         date = div.find('h2')
@@ -55,8 +91,38 @@ def get_lunch_foods(week):
                 ret[weekday].append(foodstr)
     return ret
 
-def get_lunch_stupid_method(week):
-    
+
+def get_lunch_foods_url(week, i):
+    ret = {}
+    html = get_url_page(i)
+    if html == None:
+        return None
+    soup = BeautifulSoup(html, 'html.parser')
+    content = soup.find('div', class_='article__body')
+    title = soup.find('h1', class_='article__title',
+                      string=re.compile(f'(Otaniemen ?|lounas.* ?|lounaslista.* ?|[Ll]ukio.* ?){{1,2}}[\s\S]*(vko|viikko)[\s\S]*{week}[\s\S]*'))
+    if not title:
+        print("no title found")
+        return None
+    foodtitles = content.findAll('h2', class_='article__heading--h2')
+    for ftitle in foodtitles:
+        foods = []
+        weekday = ftitle.text
+        for sib in ftitle.find_next_siblings():
+            if not sib.name == 'p':
+                break
+            foods.append(sib.text)
+        ret[weekday] = foods
+    return ret
+
+
+def get_lunch_foods_url_bruteforce(week):
+    for i in range(0, 52):
+        r = get_lunch_foods_url(week, i)
+        if r:
+            return r
+    return None
+
 
 def get_lunch_today():
     date_now = datetime.date.today()
