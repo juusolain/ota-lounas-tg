@@ -70,13 +70,15 @@ def get_lunch_foods_frontpage(week):
     soup = BeautifulSoup(html, 'html.parser')
     h2 = soup.find('h2', string=re.compile(
         f'(Lukio.* ?|Otaniemen ?|lounas.* ?|lounaslista.* ?|[Ll]ukio.* ?){{1,2}}[\s\S]*(vko|viikko)[\s\S]*{week}[\s\S]*'))
-    if not h2:
+    if h2 == None:
         return None
     art = h2.next_sibling
+    if art == None:
+        return None
     while (art.name == None):
         art = art.next_sibling
-    if not art:
-        return None
+        if art == None:
+            return None
     divs = art.find_all('div', class_='lunch-menu__day')
     for div in divs:
         date = div.find('h2')
