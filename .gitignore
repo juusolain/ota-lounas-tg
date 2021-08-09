@@ -1,3 +1,5 @@
 token
 out.log
 mode
+bot.pickle
+__pycache__
