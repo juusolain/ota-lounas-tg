@@ -132,7 +132,10 @@ def bot_main() -> None:
     # Restore send jobs
     print("Restoring send jobs")
     for uid, data in dispatcher.user_data.items():
-        utils.set_jobs(uid, data, dispatcher.job_queue)
+        try:
+            utils.set_jobs(uid, data, dispatcher.job_queue)
+        except Exception as err:
+            print("Err while setting jobs", str(err))
 
     print("Send jobs restored")
 
