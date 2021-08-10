@@ -1,7 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 
-import sender
 import utils
 
 def start(update, context) -> None:
@@ -61,7 +60,7 @@ def handler(update: Update, context: CallbackContext) -> None:
     # Handle minutes
     if data["timepicker_target"] == 'min':
         # Get offset based on increase or decrease
-        offset = 15
+        offset = 1
         if data["timepicker_action"] == 'inc':
             pass
         elif data["timepicker_action"] == 'dec':
