@@ -60,7 +60,7 @@ def handler(update: Update, context: CallbackContext) -> None:
     # Handle minutes
     if data["timepicker_target"] == 'min':
         # Get offset based on increase or decrease
-        offset = 1
+        offset = 15
         if data["timepicker_action"] == 'inc':
             pass
         elif data["timepicker_action"] == 'dec':
