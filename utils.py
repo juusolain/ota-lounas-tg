@@ -61,4 +61,4 @@ def set_jobs(chat_id, user_data, job_queue) -> None:
     if user_data.get('daily'):
         job_queue.run_daily(sender.send_daily, t, context=chat_id, days=(0,1,2,3,4), name=f'daily-{chat_id}')
     if user_data.get('weekly'):
-        job_queue.run_daily(sender.send_weekly, t, context=chat_id, days=(1,), name=f'weekly-{chat_id}')
+        job_queue.run_daily(sender.send_weekly, t, context=chat_id, days=(0,), name=f'weekly-{chat_id}')
