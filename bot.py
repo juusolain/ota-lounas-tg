@@ -9,6 +9,8 @@ import foodgetter
 
 from datetime import time
 
+WEBHOOK_BASE_URL = 'https://ota-lounas-tg-webhook.jusola.xyz'
+
 log_chat_id = '@ota_lounas_dev'
 
 def get_channel_chat_id() -> str:
@@ -126,7 +128,8 @@ def bot_main() -> None:
     )
 
     # Create updater
-    updater = Updater(get_token(), persistence=persistence, arbitrary_callback_data=True, defaults=defaults)
+    token = get_token()
+    updater = Updater(token, persistence=persistence, arbitrary_callback_data=True, defaults=defaults)
 
     dispatcher = updater.dispatcher
 
@@ -152,8 +155,8 @@ def bot_main() -> None:
     dispatcher.add_handler(CommandHandler('ruoka', handle_send_today))
     dispatcher.add_handler(CallbackQueryHandler(handle_button))
 
-    # Fetch data
-    updater.start_polling()
+    # Start webhook
+    updater.start_webhook(listen='0.0.0.0', port=8443, url_path=token, webhook_url=f"{WEBHOOK_BASE_URL}/{token}")
 
     print("Bot up")
 
