@@ -97,7 +97,7 @@ def handle_button(update: Update, context: CallbackContext) -> None:
         remove_job(f'daily-{id}', context)
 
         # Empty userdata
-        context.user_data = {}
+        context.user_data.clear()
         # Reply
         utils.send_autodelete(update, context, 'Selvä, et \(enää\) saa ruokalistoja', 15)
         # Delete setup msg
