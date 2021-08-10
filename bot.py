@@ -1,5 +1,6 @@
 from sender import send_weekly
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
+from telegram.utils import helpers
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, PicklePersistence, Defaults
 
 import timepicker
@@ -113,7 +114,7 @@ def send_channel(context) -> None:
         context.bot.send_message(get_channel_chat_id(), text=foodgetter.get_day_message())
     except Exception as err:
         context.bot.send_message(log_chat_id, text="Error while sending foods")
-        context.bot.send_message(log_chat_id, text=str(err))
+        context.bot.send_message(log_chat_id, text=helpers.escape_markdown(str(err), 2))
 
 def bot_main() -> None:
     """Start bot"""
