@@ -95,8 +95,11 @@ def handle_button(update: Update, context: CallbackContext) -> None:
         id = query.message.chat.id
         remove_job(f'weekly-{id}', context)
         remove_job(f'daily-{id}', context)
+
+        # Empty userdata
+        context.user_data = {}
         # Reply
-        query.message.reply_text('Selvä, et \(enää\) saa ruokalistoja')
+        utils.send_autodelete(update, context, 'Selvä, et \(enää\) saa ruokalistoja', 15)
         # Delete setup msg
         query.delete_message()
         
