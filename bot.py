@@ -94,7 +94,7 @@ def handle_button(update: Update, context: CallbackContext) -> None:
         remove_job(f'weekly-{id}', context)
         remove_job(f'daily-{id}', context)
         # Reply
-        query.message.reply_text('Selvä, et (enää) saa ruokalistoja')
+        query.message.reply_text('Selvä, et \(enää\) saa ruokalistoja')
         # Delete setup msg
         query.delete_message()
         
