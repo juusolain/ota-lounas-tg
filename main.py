@@ -121,9 +121,16 @@ def remove_job(name: str, context: CallbackContext) -> None:
     for job in jobs:
         job.schedule_removal()
 
-def send_channel(context) -> None:
+def send_channel_daily(context) -> None:
     try:
         context.bot.send_message(get_channel_chat_id(), text=foodgetter.get_day_message())
+    except Exception as err:
+        context.bot.send_message(log_chat_id, text="Error while sending foods")
+        context.bot.send_message(log_chat_id, text=helpers.escape_markdown(str(err), 2))
+
+def send_channel_weekly(context) -> None:
+    try:
+        context.bot.send_message(get_channel_chat_id(), text=foodgetter.get_week_message())
     except Exception as err:
         context.bot.send_message(log_chat_id, text="Error while sending foods")
         context.bot.send_message(log_chat_id, text=helpers.escape_markdown(str(err), 2))
@@ -166,7 +173,8 @@ def main() -> None:
 
     print("Adding normal jobs")
 
-    dispatcher.job_queue.run_daily(send_channel, time(7,0,0,tzinfo=get_localzone()), days=(0,1,2,3,4), name='channel')
+    dispatcher.job_queue.run_daily(send_channel_daily, time(7,0,0,tzinfo=get_localzone()), days=(0,1,2,3,4), name='channel-daily')
+    dispatcher.job_queue.run_daily(send_channel_weekly, time(7,0,0,tzinfo=get_localzone()), days=(0,), name='channel-weekly')
     dispatcher.job_queue.run_daily(start_load_foods, time(0,0,1,tzinfo=get_localzone()), days=(0,1,2,3,4), name='foodloader')
 
     # Add handlers
