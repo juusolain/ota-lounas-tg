@@ -40,51 +40,50 @@ def get_lunch_foods(week):
 
 
 def get_url_page(week, i=0):
+    """Get html for week, bruteforcing each url"""
     base_url = url_list[i]
     r = requests.get(f'{base_url}{week}')
-    if r.status_code == 404:
+    if r.status_code != 200:
         i += 1
         if i >= len(url_list):
             return None
         return get_url_page(week, i)
     return r.text
 
-
 def get_lunch_foods_frontpage(week):
-    r = {}
+    """Get lunch foods via frontpage link"""
+    l = get_frontpage_link(week)
+    if not l:
+        return None
+    r = requests.get(l)
+    if r.status_code == 200:
+        return parse_lunch_page(r.text, week)
+    else:
+        return None
+
+
+def get_frontpage_link(week):
+    """Get link to food page from front page"""
     html = get_frontpage()
     soup = BeautifulSoup(html, 'html.parser')
     h2 = soup.find('h2', string=re.compile(
         f'(Lukio.* ?|Otaniemen ?|lounas.* ?|lounaslista.* ?|[Ll]ukio.* ?){{1,2}}[\s\S]*(vko|viikko)[\s\S]*{week}[\s\S]*'))
     if h2 == None:
         return None
-    art = h2.next_sibling
-    if art == None:
+    link_a = h2.parent
+    if link_a == None:
         return None
-    while (art.name == None):
-        art = art.next_sibling
-        if art == None:
-            return None
-    divs = art.find_all('div', class_='lunch-menu__day')
-    for div in divs:
-        date = div.find('h2')
-        weekday = date.string
-        weekday = weekday.strip()
-        r[weekday] = []
-        foods = div.find_all('p')
-        for food in foods:
-            foodstr = food.string.strip()
-            foodstr = foodstr.replace(u'\xa0', u' ')
-            if(foodstr != ''):
-                r[weekday].append(foodstr)
-    return r
-
+    l = link_a.get('href')
+    return l
 
 def get_lunch_foods_url(week, i):
-    r = {}
     html = get_url_page(i)
     if html == None:
         return None
+    return parse_lunch_page(html, week)
+
+def parse_lunch_page(html, week):
+    r = {}
     soup = BeautifulSoup(html, 'html.parser')
     content = soup.find('div', class_='article__body')
     title = soup.find('h1', class_='article__title',
@@ -102,7 +101,6 @@ def get_lunch_foods_url(week, i):
             foods.append(sib.text)
         r[weekday] = foods
     return r
-
 
 def get_lunch_foods_url_bruteforce(week):
     for i in range(0, 52):
