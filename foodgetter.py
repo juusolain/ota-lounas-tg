@@ -113,7 +113,9 @@ def get_lunch_foods_url_bruteforce(week):
 def get_day_message():
     global foods
     if not foods:
-        raise Exception("No foods")
+        load_foods()
+        if not foods:
+            raise Exception("No foods")
     date_now = datetime.date.today()
     day = date_now.day
     month = date_now.month
@@ -146,7 +148,9 @@ def format_day_message(foodlist, humandate):
 def get_week_message():
     global foods
     if not foods:
-        raise Exception("No foods")
+        load_foods()
+        if not foods:
+            raise Exception("No foods")
     date_now = datetime.date.today()
     week = date_now.isocalendar()[1]
     r = f"*Viikko {week}*\n"
@@ -159,5 +163,8 @@ def load_foods(isNextWeek):
     date_now = datetime.date.today()
     week = date_now.isocalendar()[1]
     if isNextWeek:
-        week += 1
+        td = datetime.timedelta(week=1)
+        newdate = date_now + td
+        week = newdate.isocalendar()[1]
     foods = get_lunch_foods(week)
+    return foods

@@ -146,13 +146,13 @@ def send_channel_weekly(context) -> bool:
         context.bot.send_message(log_chat_id, text=helpers.escape_markdown(str(err), 2))
         return False
 
-def start_load_foods(isNextWeek=False) -> None:
+def start_load_foods(*argv, isNextWeek=False) -> None:
     print("Starting food load thread")
     t = threading.Thread(target=foodgetter.load_foods, args=[isNextWeek])
     t.start()
 
-def start_load_foods_nextweek() -> None:
-    start_load_foods(True)
+def start_load_foods_nextweek(*argv) -> None:
+    start_load_foods(isNextWeek=True)
 
 def main() -> None:
     """Start bot"""
@@ -187,11 +187,12 @@ def main() -> None:
 
     print("Adding normal jobs")
 
-    dispatcher.job_queue.run_daily(send_channel_daily, time(7,0,0,tzinfo=get_localzone()), days=(0,1,2,3,4), name='channel-daily')
-    dispatcher.job_queue.run_daily(send_channel_weekly_monday, time(6,59,59,tzinfo=get_localzone()), days=(0), name='channel-weekly-monday')
-    dispatcher.job_queue.run_daily(send_channel_weekly_sunday, time(18,0,0,tzinfo=get_localzone()), days=(6), name='channel-weekly-sunday')
-    dispatcher.job_queue.run_daily(start_load_foods, time(0,0,1,tzinfo=get_localzone()), days=(0,1,2,3,4), name='foodloader')
-    dispatcher.job_queue.run_daily(start_load_foods_nextweek, time(0,0,1,tzinfo=get_localzone()), days=(6), name='foodloader')
+    dispatcher.job_queue.run_daily(send_channel_daily, time(7,0,0,tzinfo=get_localzone()), days=(0,1,2,3,4), name='channel-daily') # send daily
+    dispatcher.job_queue.run_daily(send_channel_weekly_sunday, time(18,0,0,tzinfo=get_localzone()), days=(6,), name='channel-weekly-sunday') # send weekly on sunday if available
+    dispatcher.job_queue.run_daily(send_channel_weekly_monday, time(6,59,59,tzinfo=get_localzone()), days=(0,), name='channel-weekly-monday') # send weekly on monday if sunday didn't work
+
+    dispatcher.job_queue.run_daily(start_load_foods, time(0,0,1,tzinfo=get_localzone()), days=(0,1,2,3,4), name='foodloader-daily') # load foods at midnight
+    dispatcher.job_queue.run_daily(start_load_foods_nextweek, time(17,50,0,tzinfo=get_localzone()), days=(6,), name='foodloader-nextweek') # load foods just before sunday-weekly for max chance of having food
 
     # Add handlers
     dispatcher.add_handler(CommandHandler('start', handle_start))
