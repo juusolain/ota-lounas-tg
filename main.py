@@ -146,10 +146,13 @@ def send_channel_weekly(context) -> bool:
         context.bot.send_message(log_chat_id, text=helpers.escape_markdown(str(err), 2))
         return False
 
-def start_load_foods(*args) -> None:
+def start_load_foods(isNextWeek=False) -> None:
     print("Starting food load thread")
-    t = threading.Thread(target=foodgetter.load_foods, args=[])
+    t = threading.Thread(target=foodgetter.load_foods, args=[isNextWeek])
     t.start()
+
+def start_load_foods_nextweek() -> None:
+    start_load_foods(True)
 
 def main() -> None:
     """Start bot"""
@@ -188,6 +191,7 @@ def main() -> None:
     dispatcher.job_queue.run_daily(send_channel_weekly_monday, time(7,0,0,tzinfo=get_localzone()), days=(0), name='channel-weekly-monday')
     dispatcher.job_queue.run_daily(send_channel_weekly_sunday, time(18,0,0,tzinfo=get_localzone()), days=(6), name='channel-weekly-sunday')
     dispatcher.job_queue.run_daily(start_load_foods, time(0,0,1,tzinfo=get_localzone()), days=(0,1,2,3,4), name='foodloader')
+    dispatcher.job_queue.run_daily(start_load_foods_nextweek, time(0,0,1,tzinfo=get_localzone()), days=(6), name='foodloader')
 
     # Add handlers
     dispatcher.add_handler(CommandHandler('start', handle_start))

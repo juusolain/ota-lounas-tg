@@ -154,8 +154,10 @@ def get_week_message():
         r += format_day_message(foodlist, weekday)
     return r
 
-def load_foods(*args, **kwargs):
+def load_foods(isNextWeek):
     global foods
     date_now = datetime.date.today()
     week = date_now.isocalendar()[1]
+    if isNextWeek:
+        week += 1
     foods = get_lunch_foods(week)
