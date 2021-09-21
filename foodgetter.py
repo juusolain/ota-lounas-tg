@@ -128,7 +128,7 @@ def get_day_message():
 
     foodlist = foods_candidates[0]
 
-    humandate = f"{weekday_name} {day}.{month}"
+    humandate = f"{weekday_name} {day}.{month}."
 
     return format_day_message(foodlist, humandate)
 

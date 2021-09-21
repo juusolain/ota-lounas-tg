@@ -188,7 +188,7 @@ def main() -> None:
     print("Adding normal jobs")
 
     dispatcher.job_queue.run_daily(send_channel_daily, time(7,0,0,tzinfo=get_localzone()), days=(0,1,2,3,4), name='channel-daily')
-    dispatcher.job_queue.run_daily(send_channel_weekly_monday, time(7,0,0,tzinfo=get_localzone()), days=(0), name='channel-weekly-monday')
+    dispatcher.job_queue.run_daily(send_channel_weekly_monday, time(6,59,59,tzinfo=get_localzone()), days=(0), name='channel-weekly-monday')
     dispatcher.job_queue.run_daily(send_channel_weekly_sunday, time(18,0,0,tzinfo=get_localzone()), days=(6), name='channel-weekly-sunday')
     dispatcher.job_queue.run_daily(start_load_foods, time(0,0,1,tzinfo=get_localzone()), days=(0,1,2,3,4), name='foodloader')
     dispatcher.job_queue.run_daily(start_load_foods_nextweek, time(0,0,1,tzinfo=get_localzone()), days=(6), name='foodloader')
