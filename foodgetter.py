@@ -145,7 +145,7 @@ def format_day_message(foodlist, humandate):
         r += "\n"
     return r
 
-def get_week_message():
+def get_week_message(isNextWeek=False):
     global foods
     if not foods:
         load_foods()
@@ -153,6 +153,10 @@ def get_week_message():
             raise Exception("No foods")
     date_now = datetime.date.today()
     week = date_now.isocalendar()[1]
+    if isNextWeek:
+        td = datetime.timedelta(weeks=1)
+        newdate = date_now + td
+        week = newdate.isocalendar()[1]
     r = f"*Viikko {week}*\n"
     for weekday, foodlist in foods.items():
         r += format_day_message(foodlist, weekday)
@@ -163,7 +167,7 @@ def load_foods(isNextWeek):
     date_now = datetime.date.today()
     week = date_now.isocalendar()[1]
     if isNextWeek:
-        td = datetime.timedelta(week=1)
+        td = datetime.timedelta(weeks=1)
         newdate = date_now + td
         week = newdate.isocalendar()[1]
     foods = get_lunch_foods(week)
