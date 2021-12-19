@@ -67,7 +67,7 @@ def get_frontpage_link(week):
     html = get_frontpage()
     soup = BeautifulSoup(html, 'html.parser')
     h2 = soup.find('h2', string=re.compile(
-        f'(Lukio.* ?|Otaniemen ?|lounas.* ?|lounaslista.* ?|[Ll]ukio.* ?){{1,2}}[\s\S]*(vko|viikko)[\s\S]*{week}[\s\S]*'))
+        f'(Lukio.* ?|Otaniemen ?|lounas.* ?|lounaslista.* ?|lukio.* ?){{1,3}}[\s\S]*(vko|viikko)[\s\S]*{week}[\s\S]*', re.IGNORECASE))
     if h2 == None:
         return None
     link_a = h2.parent
@@ -87,7 +87,7 @@ def parse_lunch_page(html, week):
     soup = BeautifulSoup(html, 'html.parser')
     content = soup.find('div', class_='article__body')
     title = soup.find('h1', class_='article__title',
-                      string=re.compile(f'(Otaniemen ?|lounas.* ?|lounaslista.* ?|[Ll]ukio.* ?){{1,2}}[\s\S]*(vko|viikko)[\s\S]*{week}[\s\S]*'))
+                      string=re.compile(f'(Otaniemen ?|lounas.* ?|lounaslista.* ?|[Ll]ukio.* ?){{1,3}}[\s\S]*(vko|viikko)[\s\S]*{week}[\s\S]*', re.IGNORECASE))
     if not title:
         print("no title found")
         return None
