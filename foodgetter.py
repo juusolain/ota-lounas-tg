@@ -9,7 +9,9 @@ import re
 
 foods = None
 
-restaurantid = 176176
+restaurantid = 330303
+
+debug_override_date = None#datetime.date.fromisoformat("2022-01-11")
 
 json_url = f"https://www.amica.fi/api/restaurant/menu/week?language=fi&restaurantPageId={restaurantid}&weekDate="
 
@@ -47,7 +49,7 @@ def get_day_message():
         load_foods()
         if not foods:
             raise Exception("No foods")
-    date_now = datetime.date.today()
+    date_now = debug_override_date or datetime.date.today()
     day = date_now.day
     month = date_now.month
     weekday = date_now.weekday()
@@ -71,9 +73,10 @@ def format_day_message(foodlist, humandate):
     r += humandate.replace('.', '\.').replace('-', '\-')
     r += "*\n"
     for ftype, farr in foodlist:
-        r += ftype
-        r += ":\n"
-        r += "".join([ f'- {x}\n' for x in farr]).replace('.', '\.').replace('-', '\-').replace('*', '\*')
+            if "lukio" in ftype:
+                r += ftype.split(" ")[-1].capitalize()
+                r += ":\n"
+                r += "".join([ f'- {x}\n' for x in farr]).replace('.', '\.').replace('-', '\-').replace('*', '\*')
     print(r)
     return r
 
@@ -83,7 +86,7 @@ def get_week_message(isNextWeek=False):
         load_foods()
         if not foods:
             raise Exception("No foods")
-    date_now = datetime.date.today()
+    date_now = debug_override_date or datetime.date.today()
     if isNextWeek:
         td = datetime.timedelta(weeks=1)
         date_now = date_now + td
@@ -95,7 +98,7 @@ def get_week_message(isNextWeek=False):
 
 def load_foods(isNextWeek=False):
     global foods
-    date_now = datetime.date.today()
+    date_now = debug_override_date or datetime.date.today()
     if isNextWeek:
         td = datetime.timedelta(weeks=1)
         date_now = date_now + td
