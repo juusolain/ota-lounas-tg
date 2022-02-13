@@ -74,8 +74,6 @@ def format_day_message(foodlist, humandate):
     r += "*\n"
     for ftype, farr in foodlist:
             if "lukio" in ftype:
-                r += ftype.split(" ")[-1].capitalize()
-                r += ":\n"
                 r += "".join([ f'- {x}\n' for x in farr]).replace('.', '\.').replace('-', '\-').replace('*', '\*')
     print(r)
     return r
