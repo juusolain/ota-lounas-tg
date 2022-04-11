@@ -72,9 +72,11 @@ def format_day_message(foodlist, humandate):
     r = "*"
     r += humandate.replace('.', '\.').replace('-', '\-')
     r += "*\n"
+    school_food_exists = any("lukio" in ftype for ftype in foodlist)
     for ftype, farr in foodlist:
-            if "lukio" in ftype:
-                r += "".join([ f'- {x}\n' for x in farr]).replace('.', '\.').replace('-', '\-').replace('*', '\*')
+        if "lukio" in ftype or (not school_food_exists and "Henkilöstö" not in ftype):
+            r += "".join([ f'- {x}\n' for x in farr]).replace('.', '\.').replace('-', '\-').replace('*', '\*')
+            print(ftype)
     print(r)
     return r
 
