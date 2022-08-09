@@ -29,7 +29,6 @@ def get_lunch_foods(date):
     print("Getting lunch foods")
     r = get_json(date)
     if not r: return None
-    print("Found foods")
     foods = {}
     for menu in r['LunchMenus']:
         day = menu['DayOfWeek']
@@ -44,6 +43,8 @@ def get_lunch_foods(date):
                 dayfoods.append((ftype, farr))
         if len(dayfoods) > 0:
             foods[day] = dayfoods
+    print("Found foods")
+    print(foods)
     return foods
 
 def get_day_message():
