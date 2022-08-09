@@ -7,7 +7,7 @@ from tzlocal import get_localzone
 import datetime
 
 import threading
-
+import argparse
 import timepicker
 import utils
 import foodgetter
@@ -36,6 +36,13 @@ def get_token() -> str:
     token = tf.read().strip()
     tf.close()
     return token
+
+def get_admins() -> list:
+    """Get admins from file"""
+    af = open('admins', 'r')
+    admins = af.read().split().strip()
+    af.close()
+    return admins
 
 def handle_info(update: Update, context: CallbackContext) -> None:
     utils.send_info(update, context)
@@ -71,6 +78,28 @@ def handle_send_week(update: Update, context: CallbackContext) -> None:
     except Exception as err:
         print(err)
         utils.send_autodelete(update, context, "Vaikuttaisi siltä, että tällä viikolla ei ole ruokaa\nJos olen väärässä, laita viestiä: @juusolain", 60)
+    update.message.delete()
+
+# Admin
+def handle_manual_channel_send_week(update: Update, context: CallbackContext) -> None:
+    try:
+        if not update.message.from_user.id in get_admins():
+            return
+        context.bot_data['weekly_sent'] = send_channel_weekly(context)
+    except Exception as err:
+        print(err)
+        utils.send_autodelete(update, context, err, 60)
+    update.message.delete()
+
+# Admin
+def handle_manual_channel_send_daily(update: Update, context: CallbackContext) -> None:
+    try:
+        if not update.message.from_user.id in get_admins():
+            return
+        send_channel_daily(context)
+    except Exception as err:
+        print(err)
+        utils.send_autodelete(update, context, err, 60)
     update.message.delete()
 
 def handle_button(update: Update, context: CallbackContext) -> None:
@@ -155,7 +184,6 @@ def start_load_foods(*argv) -> None:
 
 def main() -> None:
     """Start bot"""
-
     defaults = Defaults(parse_mode=ParseMode.MARKDOWN_V2, tzinfo=get_localzone())
     # Create persistence for buttons to work after bot restart
     persistence = PicklePersistence(
@@ -196,6 +224,8 @@ def main() -> None:
     # Add handlers
     dispatcher.add_handler(CommandHandler('start', handle_start))
     dispatcher.add_handler(CommandHandler('info', handle_info))
+    dispatcher.add_handler(CommandHandler('channel_weekly', handle_manual_channel_send_week))
+    dispatcher.add_handler(CommandHandler('channel_daily', handle_manual_channel_send_daily))
     dispatcher.add_handler(CommandHandler('viikko', handle_send_week))
     dispatcher.add_handler(CommandHandler('ruoka', handle_send_today))
     dispatcher.add_handler(CallbackQueryHandler(handle_button))
