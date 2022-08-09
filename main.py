@@ -7,7 +7,6 @@ from tzlocal import get_localzone
 import datetime
 
 import threading
-import argparse
 import timepicker
 import utils
 import foodgetter
@@ -40,7 +39,7 @@ def get_token() -> str:
 def get_admins() -> list:
     """Get admins from file"""
     af = open('admins', 'r')
-    admins = af.read().split().strip()
+    admins = af.read().strip().split()
     af.close()
     return admins
 
@@ -83,8 +82,8 @@ def handle_send_week(update: Update, context: CallbackContext) -> None:
 # Admin
 def handle_manual_channel_send_week(update: Update, context: CallbackContext) -> None:
     try:
-        if not update.message.from_user.id in get_admins():
-            print("Manual send from nonadmin - ignore")
+        if not str(update.message.from_user.id) in get_admins():
+            print(f"Manual send from nonadmin {update.message.from_user.id} - ignoring")
             return
         context.bot_data['weekly_sent'] = send_channel_weekly(context)
         print("Sent manual weekly")
@@ -96,8 +95,8 @@ def handle_manual_channel_send_week(update: Update, context: CallbackContext) ->
 # Admin
 def handle_manual_channel_send_daily(update: Update, context: CallbackContext) -> None:
     try:
-        if not update.message.from_user.id in get_admins():
-            print("Manual send from nonadmin - ignore")
+        if not str(update.message.from_user.id) in get_admins():
+            print(f"Manual send from nonadmin {update.message.from_user.id} - ignoring")
             return
         send_channel_daily(context)
         print("Sent manual daily")
