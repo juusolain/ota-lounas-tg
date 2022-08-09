@@ -84,8 +84,10 @@ def handle_send_week(update: Update, context: CallbackContext) -> None:
 def handle_manual_channel_send_week(update: Update, context: CallbackContext) -> None:
     try:
         if not update.message.from_user.id in get_admins():
+            print("Manual send from nonadmin - ignore")
             return
         context.bot_data['weekly_sent'] = send_channel_weekly(context)
+        print("Sent manual weekly")
     except Exception as err:
         print(err)
         utils.send_autodelete(update, context, err, 60)
@@ -95,8 +97,10 @@ def handle_manual_channel_send_week(update: Update, context: CallbackContext) ->
 def handle_manual_channel_send_daily(update: Update, context: CallbackContext) -> None:
     try:
         if not update.message.from_user.id in get_admins():
+            print("Manual send from nonadmin - ignore")
             return
         send_channel_daily(context)
+        print("Sent manual daily")
     except Exception as err:
         print(err)
         utils.send_autodelete(update, context, err, 60)
