@@ -34,8 +34,11 @@ def get_lunch_foods(date):
     for menu in r['LunchMenus']:
         day = menu['DayOfWeek']
         dayfoods = []
+        school_food_exists = any("lukio" in f"{setmenu['Name']}".lower() for setmenu in menu['SetMenus'])
         for setmenu in menu['SetMenus']:
             ftype = f"{setmenu['Name']}"
+            if (school_food_exists and "henkilöstö" in ftype.lower() and not "lukio" in ftype.lower()):
+                continue
             farr = [meal['Name'] + " " + " ".join(meal['Diets']) for meal in setmenu['Meals']]
             if len(farr) > 0:
                 dayfoods.append((ftype, farr))
@@ -72,12 +75,8 @@ def format_day_message(foodlist, humandate):
     r = "*"
     r += humandate.replace('.', '\.').replace('-', '\-')
     r += "*\n"
-    school_food_exists = any("lukio" in ftype for ftype in foodlist)
     for ftype, farr in foodlist:
-        if "lukio" in ftype or (not school_food_exists and "Henkilöstö" not in ftype):
-            r += "".join([ f'- {x}\n' for x in farr]).replace('.', '\.').replace('-', '\-').replace('*', '\*')
-            print(ftype)
-    print(r)
+        r += "".join([ f'- {x}\n' for x in farr]).replace('.', '\.').replace('-', '\-').replace('*', '\*')
     return r
 
 def get_week_message(isNextWeek=False):
