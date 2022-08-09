@@ -62,7 +62,7 @@ def handle_send_today(update: Update, context: CallbackContext) -> None:
         update.message.reply_text(foodgetter.get_day_message())
     except Exception as err:
         print(err)
-        utils.send_autodelete(update, context, "Vaikuttaisi siltä, että tänään ei ole ruokaa\nOnko tämä virheellistä: @juusolain", 60)
+        utils.send_autodelete(update, context, "Vaikuttaisi siltä, että tänään ei ole ruokaa\nJos olen väärässä, laita viestiä: @juusolain", 60)
     update.message.delete()
 
 def handle_send_week(update: Update, context: CallbackContext) -> None:
@@ -70,7 +70,7 @@ def handle_send_week(update: Update, context: CallbackContext) -> None:
         update.message.reply_text(foodgetter.get_week_message())
     except Exception as err:
         print(err)
-        utils.send_autodelete(update, context, "Vaikuttaisi siltä, että tällä viikolla ei ole ruokaa\nOnko tämä virheellistä: @juusolain", 60)
+        utils.send_autodelete(update, context, "Vaikuttaisi siltä, että tällä viikolla ei ole ruokaa\nJos olen väärässä, laita viestiä: @juusolain", 60)
     update.message.delete()
 
 def handle_button(update: Update, context: CallbackContext) -> None:

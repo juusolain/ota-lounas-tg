@@ -36,7 +36,7 @@ def get_lunch_foods(date):
         school_food_exists = any("lukio" in f"{setmenu['Name']}".lower() for setmenu in menu['SetMenus'])
         for setmenu in menu['SetMenus']:
             ftype = f"{setmenu['Name']}"
-            if (school_food_exists and "henkilöstö" in ftype.lower() and not "lukio" in ftype.lower()):
+            if "henkilöstö" in ftype.lower() or (school_food_exists and not "lukio" in ftype.lower()):
                 continue
             farr = [meal['Name'] + " " + " ".join(meal['Diets']) for meal in setmenu['Meals']]
             if len(farr) > 0:

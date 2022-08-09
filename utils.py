@@ -12,7 +12,7 @@ def get_frequency_text(weekly, daily):
     elif daily:
         return 'joka päivä'
     else:
-        return 'et milloinkaan'
+        return 'ei milloinkaan'
 
 def get_time_text(hour, minute):
     try:
