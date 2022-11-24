@@ -233,12 +233,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('ruoka', handle_send_today))
     dispatcher.add_handler(CallbackQueryHandler(handle_button))
 
-    # Start webhook
-    mode = get_mode()
-    if mode == 'prod':
-        updater.start_webhook(listen='0.0.0.0', port=8443, url_path=token, webhook_url=f"{WEBHOOK_BASE_URL}/{token}")
-    else:
-        updater.start_polling()
+    updater.start_polling()
 
     print("Bot up")
 
