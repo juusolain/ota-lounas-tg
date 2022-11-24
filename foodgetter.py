@@ -99,7 +99,7 @@ def get_week_message(isNextWeek=False):
 
 
 def manual_set_foods(new_foods, isNextWeek=False):
-    global foods_stored
+    global foods_stored, foods_stored_expiry
     date_now = debug_override_date or datetime.date.today()
     if isNextWeek:
         td = datetime.timedelta(weeks=1)
@@ -107,10 +107,12 @@ def manual_set_foods(new_foods, isNextWeek=False):
     if new_foods or date_now > foods_stored_expiry:
         foods_stored = new_foods
         foods_stored_expiry = date_now + datetime.timedelta(days=6-date_now.weekday()) # expire on sunday
+    else:
+        print('Got invalid foods, using old stored foods')
     return foods_stored
 
 def load_foods(isNextWeek=False):
-    global foods_stored
+    global foods_stored, foods_stored_expiry
     date_now = debug_override_date or datetime.date.today()
     if isNextWeek:
         td = datetime.timedelta(weeks=1)
@@ -119,4 +121,6 @@ def load_foods(isNextWeek=False):
     if new_foods or date_now > foods_stored_expiry:
         foods_stored = new_foods
         foods_stored_expiry = date_now + datetime.timedelta(days=6-date_now.weekday()) # expire on sunday
+    else:
+        print('Got invalid foods, using old stored foods')
     return foods_stored
