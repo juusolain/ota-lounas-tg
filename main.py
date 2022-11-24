@@ -10,7 +10,7 @@ import threading
 import timepicker
 import utils
 import foodgetter
-import json
+import ast
 
 WEBHOOK_BASE_URL = 'https://ota-lounas-tg-webhook.jusola.xyz'
 
@@ -113,11 +113,11 @@ def handle_set_foods(update: Update, context: CallbackContext) -> None:
             return
         parts = update.message.text.split(" ", 2)
         if not len(parts) == 3:
-            utils.send_autodelete(update, context, 'Invalid format, use /setfoods nextweek foodsJson\nnextweek = [this, next]. This = this weeks foods, next for next weeks\nfoodsJson is the foods JSON stringified')
+            utils.send_autodelete(update, context, 'Invalid format, use /setfoods nextweek foods\nnextweek = [this, next]. This = this weeks foods, next for next weeks\nfoods as python')
         if not parts[1] in ['this', 'next']:
             utils.send_autodelete(update, context, 'Invalid nextweek value. Use this for this week or next for next week')
         isNextWeek = (parts[1] == 'next')
-        new_foods = json.loads(parts[2])
+        new_foods = ast.literal_eval(parts[2])
 
         foodgetter.manual_set_foods(new_foods, isNextWeek=isNextWeek)
 
