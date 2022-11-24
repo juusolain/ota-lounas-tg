@@ -104,7 +104,7 @@ def manual_set_foods(new_foods, isNextWeek=False):
     if isNextWeek:
         td = datetime.timedelta(weeks=1)
         date_now = date_now + td
-    if new_foods or date_now > foods_stored_expiry:
+    if new_foods or (foods_stored_expiry and date_now > foods_stored_expiry):
         foods_stored = new_foods
         foods_stored_expiry = date_now + datetime.timedelta(days=6-date_now.weekday()) # expire on sunday
     else:
@@ -118,7 +118,7 @@ def load_foods(isNextWeek=False):
         td = datetime.timedelta(weeks=1)
         date_now = date_now + td
     new_foods = get_lunch_foods(date_now)
-    if new_foods or date_now > foods_stored_expiry:
+    if new_foods or (foods_stored_expiry and date_now > foods_stored_expiry):
         foods_stored = new_foods
         foods_stored_expiry = date_now + datetime.timedelta(days=6-date_now.weekday()) # expire on sunday
     else:
