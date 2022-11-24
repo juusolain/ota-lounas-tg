@@ -10,6 +10,7 @@ import threading
 import timepicker
 import utils
 import foodgetter
+import json
 
 WEBHOOK_BASE_URL = 'https://ota-lounas-tg-webhook.jusola.xyz'
 
@@ -100,6 +101,27 @@ def handle_manual_channel_send_daily(update: Update, context: CallbackContext) -
             return
         send_channel_daily(context)
         print("Sent manual daily")
+    except Exception as err:
+        print(err)
+        utils.send_autodelete(update, context, err, 60)
+    update.message.delete()
+
+def handle_set_foods(update: Update, context: CallbackContext) -> None:
+    try:
+        if not str(update.message.from_user.id) in get_admins():
+            print(f"Manual setfoods from nonadmin {update.message.from_user.id} - ignoring")
+            return
+        parts = update.message.text.split(" ", 2)
+        if not len(parts) == 3:
+            utils.send_autodelete(update, context, 'Invalid format, use /setfoods nextweek foodsJson\nnextweek = [this, next]. This = this weeks foods, next for next weeks\nfoodsJson is the foods JSON stringified')
+        if not parts[1] in ['this', 'next']:
+            utils.send_autodelete(update, context, 'Invalid nextweek value. Use this for this week or next for next week')
+        isNextWeek = (parts[1] == 'next')
+        new_foods = json.loads(parts[2])
+
+        foodgetter.manual_set_foods(new_foods, isNextWeek=isNextWeek)
+
+        print("Set foods manually")
     except Exception as err:
         print(err)
         utils.send_autodelete(update, context, err, 60)
@@ -231,6 +253,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('channel_daily', handle_manual_channel_send_daily))
     dispatcher.add_handler(CommandHandler('viikko', handle_send_week))
     dispatcher.add_handler(CommandHandler('ruoka', handle_send_today))
+    dispatcher.add_handler(CommandHandler('set_foods', handle_set_foods))
     dispatcher.add_handler(CallbackQueryHandler(handle_button))
 
     updater.start_polling()

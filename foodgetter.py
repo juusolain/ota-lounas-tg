@@ -7,7 +7,8 @@ from telegram import Update
 from telegram.ext import Updater
 import re
 
-foods = None
+foods_stored = None
+foods_stored_expiry = None
 
 restaurantid = 330303
 
@@ -48,10 +49,10 @@ def get_lunch_foods(date):
     return foods
 
 def get_day_message():
-    global foods
-    if not foods:
+    global foods_stored
+    if not foods_stored:
         load_foods()
-        if not foods:
+        if not foods_stored:
             raise Exception("No foods")
     date_now = debug_override_date or datetime.date.today()
     day = date_now.day
@@ -59,7 +60,7 @@ def get_day_message():
     weekday = date_now.weekday()
     weekday_name = weekday_names[weekday]
 
-    foods_candidates = [value for key, value in foods.items(
+    foods_candidates = [value for key, value in foods_stored.items(
     ) if re.search(weekday_name, key, re.IGNORECASE)]
 
     if not len(foods_candidates) == 1:
@@ -81,10 +82,10 @@ def format_day_message(foodlist, humandate):
     return r
 
 def get_week_message(isNextWeek=False):
-    global foods
-    if not foods:
+    global foods_stored
+    if not foods_stored:
         load_foods()
-        if not foods:
+        if not foods_stored:
             raise Exception("No foods")
     date_now = debug_override_date or datetime.date.today()
     if isNextWeek:
@@ -92,15 +93,30 @@ def get_week_message(isNextWeek=False):
         date_now = date_now + td
     week = date_now.isocalendar()[1]
     r = f"*Viikko {week}*\n"
-    for weekday, foodlist in foods.items():
+    for weekday, foodlist in foods_stored.items():
         r += format_day_message(foodlist, weekday)
     return r
 
-def load_foods(isNextWeek=False):
-    global foods
+
+def manual_set_foods(new_foods, isNextWeek=False):
+    global foods_stored
     date_now = debug_override_date or datetime.date.today()
     if isNextWeek:
         td = datetime.timedelta(weeks=1)
         date_now = date_now + td
-    foods = get_lunch_foods(date_now)
-    return foods
+    if new_foods or date_now > foods_stored_expiry:
+        foods_stored = new_foods
+        foods_stored_expiry = date_now + datetime.timedelta(days=6-date_now.weekday()) # expire on sunday
+    return foods_stored
+
+def load_foods(isNextWeek=False):
+    global foods_stored
+    date_now = debug_override_date or datetime.date.today()
+    if isNextWeek:
+        td = datetime.timedelta(weeks=1)
+        date_now = date_now + td
+    new_foods = get_lunch_foods(date_now)
+    if new_foods or date_now > foods_stored_expiry:
+        foods_stored = new_foods
+        foods_stored_expiry = date_now + datetime.timedelta(days=6-date_now.weekday()) # expire on sunday
+    return foods_stored
