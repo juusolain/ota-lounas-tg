@@ -8,7 +8,7 @@ from telegram.ext import Updater
 import re
 
 foods_stored = None
-foods_stored_expiry = None
+foods_stored_week = None
 
 restaurantid = 330303
 
@@ -85,7 +85,7 @@ def format_day_message(foodlist, humandate):
     return r
 
 def get_week_message(isNextWeek=False):
-    global foods_stored
+    global foods_stored, foods_stored_week
     if not foods_stored:
         load_foods()
         if not foods_stored:
@@ -94,36 +94,37 @@ def get_week_message(isNextWeek=False):
     if isNextWeek:
         td = datetime.timedelta(weeks=1)
         date_now = date_now + td
-    week = date_now.isocalendar()[1]
-    r = f"*Viikko {week}*\n"
+    r = f"*Viikko {foods_stored_week}*\n"
     for weekday, foodlist in foods_stored.items():
         r += format_day_message(foodlist, weekday)
     return r
 
 
 def manual_set_foods(new_foods, isNextWeek=False):
-    global foods_stored, foods_stored_expiry
+    global foods_stored, foods_stored_week
     date_now = debug_override_date or datetime.date.today()
     if isNextWeek:
         td = datetime.timedelta(weeks=1)
         date_now = date_now + td
-    if new_foods or (foods_stored_expiry and date_now > foods_stored_expiry):
+    new_foods_week = date_now.isocalendar()[1]
+    if new_foods or (foods_stored_week and foods_stored_week < new_foods_week):
         foods_stored = new_foods
-        foods_stored_expiry = date_now + datetime.timedelta(days=6-date_now.weekday()) # expire on sunday
+        foods_stored_week = new_foods_week
     else:
         print('Got invalid foods, using old stored foods')
     return foods_stored
 
 def load_foods(isNextWeek=False):
-    global foods_stored, foods_stored_expiry
+    global foods_stored, foods_stored_week
     date_now = debug_override_date or datetime.date.today()
     if isNextWeek:
         td = datetime.timedelta(weeks=1)
         date_now = date_now + td
     new_foods = get_lunch_foods(date_now)
-    if new_foods or (foods_stored_expiry and date_now > foods_stored_expiry):
+    new_foods_week = date_now.isocalendar()[1]
+    if new_foods or (foods_stored_week and foods_stored_week < new_foods_week):
         foods_stored = new_foods
-        foods_stored_expiry = date_now + datetime.timedelta(days=6-date_now.weekday()) # expire on sunday
+        foods_stored_week = new_foods_week
     else:
         print('Got invalid foods, using old stored foods')
     return foods_stored
