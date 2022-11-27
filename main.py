@@ -177,6 +177,10 @@ def remove_job(name: str, context: CallbackContext) -> None:
 
 def send_channel_daily(context) -> bool:
     try:
+        foodtext = foodgetter.get_day_message()
+        if not foodtext:
+            print("No foods today")
+            return False
         context.bot.send_message(get_channel_chat_id(), text=foodgetter.get_day_message())
         return True
     except Exception as err:

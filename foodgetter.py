@@ -63,8 +63,11 @@ def get_day_message():
     foods_candidates = [value for key, value in foods_stored.items(
     ) if re.search(weekday_name, key, re.IGNORECASE)]
 
-    if not len(foods_candidates) == 1:
+    if len(foods_candidates) > 1:
         raise Exception(f"Invalid foods_candidates: {foods_candidates}")
+    if len(foods_candidates) == 0:
+        return None
+    
 
     foodlist = foods_candidates[0]
 
