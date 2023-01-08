@@ -87,7 +87,7 @@ def format_day_message(foodlist, humandate):
 def get_week_message(isNextWeek=False):
     global foods_stored, foods_stored_week
     if not foods_stored:
-        load_foods()
+        load_foods(isNextWeek=isNextWeek)
         if not foods_stored:
             raise Exception("No foods")
     date_now = debug_override_date or datetime.date.today()
@@ -107,7 +107,7 @@ def manual_set_foods(new_foods, isNextWeek=False):
         td = datetime.timedelta(weeks=1)
         date_now = date_now + td
     new_foods_week = date_now.isocalendar()[1]
-    if new_foods or (foods_stored_week and foods_stored_week < new_foods_week):
+    if new_foods or not foods_stored_week or foods_stored_week < new_foods_week:
         foods_stored = new_foods
         foods_stored_week = new_foods_week
     else:
@@ -122,7 +122,7 @@ def load_foods(isNextWeek=False):
         date_now = date_now + td
     new_foods = get_lunch_foods(date_now)
     new_foods_week = date_now.isocalendar()[1]
-    if new_foods or (foods_stored_week and foods_stored_week < new_foods_week):
+    if new_foods or not foods_stored_week or foods_stored_week < new_foods_week:
         foods_stored = new_foods
         foods_stored_week = new_foods_week
     else:
