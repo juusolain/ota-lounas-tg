@@ -248,6 +248,7 @@ def main() -> None:
     dispatcher.job_queue.run_daily(send_channel_weekly_monday, datetime.time(6,59,59,tzinfo=get_localzone()), days=(0,), name='channel-weekly-monday') # send weekly on monday if sunday didn't work
 
     dispatcher.job_queue.run_daily(start_load_foods, datetime.time(0,0,1,tzinfo=get_localzone()), days=(0,1,2,3,4), name='foodloader-daily') # load foods at midnight
+    dispatcher.job_queue.run_daily(start_load_foods, datetime.time(6,55,0,tzinfo=get_localzone()), days=(0,1,2,3,4), name='foodloader-daily-backup') # load foods also before sending daily in case they had loaded
     dispatcher.job_queue.run_daily(start_load_foods, datetime.time(17,50,0,tzinfo=get_localzone()), days=(6,), name='foodloader-nextweek') # load foods just before sunday-weekly for max chance of having food
 
     # Add handlers
