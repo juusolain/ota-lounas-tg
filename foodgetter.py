@@ -10,11 +10,11 @@ import re
 foods_stored = None
 foods_stored_week = None
 
-restaurantid = 330303
+restaurantid = 3864
 
 debug_override_date = None#datetime.date.fromisoformat("2022-01-11")
 
-json_url = f"https://www.amica.fi/api/restaurant/menu/week?language=fi&restaurantPageId={restaurantid}&weekDate="
+json_url = f"https://www.compass-group.fi/menuapi/week-menus?language=fi&costCenter={restaurantid}&date="
 
 weekday_names = ['Maanantai', 'Tiistai', 'Keskiviikko',
                  'Torstai', 'Perjantai', 'Lauantai', 'Sunnuntai']
