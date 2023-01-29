@@ -19,6 +19,9 @@ json_url = f"https://www.compass-group.fi/menuapi/week-menus?language=fi&costCen
 weekday_names = ['Maanantai', 'Tiistai', 'Keskiviikko',
                  'Torstai', 'Perjantai', 'Lauantai', 'Sunnuntai']
 
+weekday_names_en = ['Monday', 'Tuesday', 'Wednesday',
+                 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
 def get_json(date):
     """Get html for week, bruteforcing each url"""
     r = requests.get(f'{json_url}{date.strftime("%Y-%m-%d")}')
@@ -33,9 +36,10 @@ def get_lunch_foods(date):
     foods = {}
     for menu in r['menus']:
         day = menu['dayOfWeek']
+        if day in weekday_names_en:
+            day = weekday_names[weekday_names_en.index(day)]
         dayfoods = []
         school_food_exists = any("lukio" in f"{setmenu['name']}".lower() for setmenu in menu['menuPackages'])
-        print(menu)
         for setmenu in menu['menuPackages']:
             ftype = f"{setmenu['name']}"
             if "henkilöstö" in ftype.lower() or (school_food_exists and not "lukio" in ftype.lower()):
