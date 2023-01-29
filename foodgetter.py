@@ -10,7 +10,7 @@ import re
 foods_stored = None
 foods_stored_week = None
 
-restaurantid = 3864
+restaurantid = 3868
 
 debug_override_date = None#datetime.date.fromisoformat("2022-01-11")
 
@@ -31,15 +31,16 @@ def get_lunch_foods(date):
     r = get_json(date)
     if not r: return None
     foods = {}
-    for menu in r['LunchMenus']:
-        day = menu['DayOfWeek']
+    for menu in r['menus']:
+        day = menu['dayOfWeek']
         dayfoods = []
-        school_food_exists = any("lukio" in f"{setmenu['Name']}".lower() for setmenu in menu['SetMenus'])
-        for setmenu in menu['SetMenus']:
-            ftype = f"{setmenu['Name']}"
+        school_food_exists = any("lukio" in f"{setmenu['name']}".lower() for setmenu in menu['menuPackages'])
+        print(menu)
+        for setmenu in menu['menuPackages']:
+            ftype = f"{setmenu['name']}"
             if "henkilöstö" in ftype.lower() or (school_food_exists and not "lukio" in ftype.lower()):
                 continue
-            farr = [meal['Name'] + " " + " ".join(meal['Diets']) for meal in setmenu['Meals']]
+            farr = [meal['name'] + " " + " ".join(meal['diets']) for meal in setmenu['meals']]
             if len(farr) > 0:
                 dayfoods.append((ftype, farr))
         if len(dayfoods) > 0:
